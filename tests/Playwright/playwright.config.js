@@ -5,13 +5,14 @@ import process from 'process';
 export default defineConfig({
     testDir: '.',
     fullyParallel: true,
-    reporter: [['list']],
+    reporter: [['list'], ['html']],
+    workers: process.env.CI ? 1 : undefined,
+    retries: process.env.CI ? 2 : 0,
     use: {
         baseURL: process.env.BASE_URL.replace(/^\/+|\/+$/g, ''),
         browserName: 'chromium',
-        headless: true,
-        trace: 'off',
-        video: 'off',
-        screenshot: 'off',
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
     },
 });

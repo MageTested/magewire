@@ -33,6 +33,9 @@ abstract class MagewireDeveloperAction
 
     public function execute()
     {
+        var_dump('Mode');
+        var_dump($this->applicationState->getMode());
+        exit;
         if ($this->applicationState->getMode() === ApplicationState::MODE_PRODUCTION) {
             return $this->forward(Base::NO_ROUTE);
         }

@@ -7,8 +7,8 @@ const test = base.extend({
     magentoCustomerDashboard: async ({ page }, use) => {
         await page.goto('/customer/account/login');
 
-        await page.fill('#email', process.env.ACCOUNT_EMAIL);
-        await page.fill('#pass', process.env.ACCOUNT_PASSWORD);
+        await page.getByRole('textbox', { name: 'Email' }).fill(process.env.ACCOUNT_EMAIL);
+        await page.getByRole('textbox', { name: 'Password' }).fill(process.env.ACCOUNT_PASSWORD);
 
         const button = page.locator('button[type="submit"]', { hasText: 'Sign In' });
         await button.click();

@@ -1,0 +1,80 @@
+name: End to end test
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: http://localhost/
+      ACCOUNT_EMAIL: 'johndoe@example.com'
+      ACCOUNT_PASSWORD: 'password123!'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+#          - PHP_VERSION: php81-fpm
+#            MAGENTO_VERSION: 2.4.6-p4
+          - PHP_VERSION: php83-fpm
+            MAGENTO_VERSION: 2.4.8-p1
+    steps:
+      - name: Spin up test container
+        run: |
+          docker run --detach \
+            --name magento \
+            -p 80:80 \
+            -e URL="${BASE_URL}" \
+            michielgerritsen/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
+
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+        with:
+          path: magewire
+
+      - name: Checkout Portman
+        uses: actions/checkout@v4
+        with:
+          repository: magewirephp/portman
+          path: portman
+
+      - name: Install Magewire in the Docker container
+        run: |
+          docker exec magento mkdir -p /data/extensions/magewirephp
+          docker cp $(pwd)/magewire magento:/data/extensions/
+          docker cp $(pwd)/portman magento:/data/extensions/
+          docker exec magento bash -c "cd /data/extensions/portman && composer install"
+          docker exec magento ls -al /data/extensions/magewire
+          docker exec magento ./install-composer-package magewirephp/magewire:@dev
+          docker exec magento bash -c "cd /data/vendor/magewirephp/magewire && php /data/extensions/portman/portman build"
+          docker exec magento php bin/magento deploy:mode:set developer
+          docker exec magento php bin/magento module:enable Magewirephp_Magewire
+          docker exec magento php bin/magento cache:flush
+          docker exec magento php bin/magento setup:di:compile
+
+      - name: Create customer account
+        run: |
+          docker exec magento magerun2 customer:create "${ACCOUNT_EMAIL}" "${ACCOUNT_PASSWORD}" "John" "Doe"
+
+      - name: Validate that we can access the Magento instance
+        run: |
+          curl --fail-with-body "${BASE_URL}"
+
+      - name: Install playwright
+        run: |
+          cd tests/Playwright
+          npm install
+          npx playwright install
+
+      - name: Run Playwright tests
+        run: |
+          cd tests/Playwright
+          npx playwright test
+
+      - name: Upload Playwright reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-reports
+          path: |
+            tests/Playwright/playwright-report
