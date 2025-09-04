@@ -42,9 +42,11 @@ jobs:
         run: |
           docker exec magento mkdir -p /data/extensions/magewirephp
           docker cp $(pwd)/magewire magento:/data/extensions/
-          docker exec magento bash -c "cd /data/extensions/magewire && ../../bin/portman init"
-          docker exec magento bash -c "cd /data/extensions/magewire && ../../bin/portman download-source"
-          docker exec magento bash -c "cd /data/extensions/magewire && ../../bin/portman build"
+          docker exec magento ./install-composer-package magewirephp/portman:@dev
+          docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/magewire/portman/bin/portman init"
+          docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman init"
+          docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman download-source"
+          docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman build"
           docker exec magento ./install-composer-package magewirephp/magewire:@dev
           docker exec magento php bin/magento deploy:mode:set developer
           docker exec magento php bin/magento module:enable Magewirephp_Magewire
