@@ -43,12 +43,6 @@ jobs:
           docker exec magento mkdir -p /data/extensions/magewirephp
           docker cp $(pwd)/magewire magento:/data/extensions/
           docker exec magento ./install-composer-package magewirephp/portman:@dev
-          docker exec magento bash -c "ls -al /data/vendor/"
-          docker exec magento bash -c "ls -al /data/vendor/bin/"
-          docker exec magento bash -c "ls -al /data/vendor/magewirephp/"
-          docker exec magento bash -c "ls -al /data/vendor/magewirephp/portman/"
-          docker exec magento bash -c "ls -al /data/vendor/magewirephp/portman/bin/"
-          docker exec magento bash -c "ls -al /data/vendor/magewirephp/portman/bin/portman"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman init"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman download-source"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman build"
