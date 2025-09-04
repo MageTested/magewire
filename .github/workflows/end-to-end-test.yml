@@ -32,17 +32,11 @@ jobs:
         with:
           path: magewire
 
-      - name: Checkout Portman
-        uses: actions/checkout@v4
-        with:
-          repository: magewirephp/portman
-          path: portman
-
       - name: Install Magewire in the Docker container
         run: |
-          docker exec magento mkdir -p /data/extensions/magewirephp
+          docker exec magento mkdir -p /data/extensions/magewire
           docker cp $(pwd)/magewire magento:/data/extensions/
-          docker exec magento ./install-composer-package magewirephp/portman:@dev
+          docker exec magento ./install-composer-package magewirephp/portman:@dev rector/rector friendsofphp/php-cs-fixer
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman init"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman download-source"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman build"
