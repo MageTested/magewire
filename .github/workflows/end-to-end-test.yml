@@ -34,6 +34,7 @@ jobs:
 
       - name: Install Magewire in the Docker container
         run: |
+          set -ex
           docker exec magento mkdir -p /data/extensions/magewire
           docker cp $(pwd)/magewire magento:/data/extensions/
           docker exec magento bash -c "ls -al /data/vendor/bin/"
