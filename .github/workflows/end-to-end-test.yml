@@ -38,7 +38,7 @@ jobs:
           docker exec magento mkdir -p /data/extensions/magewire
           docker cp $(pwd)/magewire magento:/data/extensions/
           docker exec magento bash -c "ls -al /data/vendor/bin/"
-          docker exec magento composer remove magento/magento-coding-standard phpstan/phpstan
+          docker exec magento composer remove magento/magento-coding-standard phpstan/phpstan --dev
           docker exec magento ./install-composer-package magewirephp/portman:@dev rector/rector friendsofphp/php-cs-fixer
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman init"
           docker exec magento bash -c "cd /data/extensions/magewire && /data/vendor/bin/portman download-source"
